@@ -1,0 +1,161 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>{{ mode() === 'create' ? 'Create New Task' : (isEditing() ? 'Edit Task' : 'Task Details') }}</h2>
+      <div class="header-actions">
+        @if (mode() === 'view' && !isEditing()) {
+          <button class="btn btn-ghost" (click)="startEdit()">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            Edit
+          </button>
+        }
+        <button class="close-btn" (click)="close.emit()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- View Mode -->
+    @if (!isEditing() && task()) {
+      <div class="modal-body">
+        <div class="detail-badges">
+          <span class="priority-badge priority--{{ task()!.priority }}">{{ task()!.priority | priorityLabel }}</span>
+          <span class="status-badge status--{{ task()!.status }}">{{ task()!.status | statusLabel }}</span>
+        </div>
+
+        <h3 class="detail-title">{{ task()!.title }}</h3>
+        <p class="detail-desc">{{ task()!.description }}</p>
+
+        <!-- Status switcher -->
+        <div class="section-label">Move to Status</div>
+        <div class="status-switcher">
+          @for (s of statuses; track s) {
+            <button class="status-btn" [class.active]="task()!.status === s" (click)="onStatusChange(s)">
+              {{ s | statusLabel }}
+            </button>
+          }
+        </div>
+
+        <!-- Progress -->
+        @if (task()!.status !== 'todo') {
+          <div class="detail-row">
+            <span class="row-label">Progress</span>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="task()!.progress"></div>
+              </div>
+              <span class="progress-pct">{{ task()!.progress }}%</span>
+            </div>
+          </div>
+        }
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="row-label">Assignee</span>
+            <div class="assignee-row">
+              <div class="avatar" [style.background]="getAvatarColor(task()!.assignee)">
+                {{ getInitials(task()!.assignee) }}
+              </div>
+              <span>{{ task()!.assignee }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="row-label">Due Date</span>
+            <span class="detail-val" [class.overdue]="isOverdue(task()!.dueDate)">
+              {{ formatDate(task()!.dueDate) }}
+              @if (isOverdue(task()!.dueDate)) { <em>(overdue)</em> }
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="row-label">Created</span>
+            <span class="detail-val">{{ formatDate(task()!.createdAt) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="row-label">Updated</span>
+            <span class="detail-val">{{ formatDate(task()!.updatedAt) }}</span>
+          </div>
+        </div>
+
+        @if (task()!.tags.length) {
+          <div class="section-label">Tags</div>
+          <div class="tags">
+            @for (tag of task()!.tags; track tag) {
+              <span class="tag">#{{ tag }}</span>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Edit / Create Mode -->
+    @if (isEditing()) {
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="onSave()">
+          <div class="form-field">
+            <label>Title *</label>
+            <input type="text" formControlName="title" placeholder="Task title"/>
+            @if (form.controls.title.invalid && form.controls.title.touched) {
+              <span class="field-err">Title is required (min 3 chars)</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label>Description *</label>
+            <textarea formControlName="description" rows="3" placeholder="Describe the task..."></textarea>
+            @if (form.controls.description.invalid && form.controls.description.touched) {
+              <span class="field-err">Description is required</span>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Priority *</label>
+              <select formControlName="priority">
+                @for (p of priorities; track p) {
+                  <option [value]="p">{{ p | priorityLabel }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Status *</label>
+              <select formControlName="status">
+                @for (s of statuses; track s) {
+                  <option [value]="s">{{ s | statusLabel }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Assignee *</label>
+              <input type="text" formControlName="assignee" placeholder="Assignee name"/>
+            </div>
+            <div class="form-field">
+              <label>Due Date *</label>
+              <input type="date" formControlName="dueDate"/>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Progress (0-100)</label>
+            <input type="number" formControlName="progress" min="0" max="100"/>
+          </div>
+
+          <div class="form-field">
+            <label>Tags (comma separated)</label>
+            <input type="text" formControlName="tags" placeholder="frontend, api, ui"/>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="cancelEdit()">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              {{ mode() === 'create' ? 'Create Task' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>

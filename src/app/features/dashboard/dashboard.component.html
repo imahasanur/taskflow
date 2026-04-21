@@ -1,0 +1,201 @@
+<div class="dashboard">
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Track and manage your project tasks</p>
+    </div>
+    <button class="btn-create" (click)="showCreateModal.set(true)">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+      </svg>
+      New Task
+    </button>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stats-grid">
+    <div class="stat-card color-indigo">
+      <div class="stat-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().total }}</div>
+        <div class="stat-label">Total Tasks</div>
+      </div>
+    </div>
+
+    <div class="stat-card color-blue">
+      <div class="stat-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().inProgress }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+
+    <div class="stat-card color-amber">
+      <div class="stat-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().review }}</div>
+        <div class="stat-label">In Review</div>
+      </div>
+    </div>
+
+    <div class="stat-card color-green">
+      <div class="stat-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().done }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+
+    <div class="stat-card color-red">
+      <div class="stat-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().critical }}</div>
+        <div class="stat-label">Critical</div>
+      </div>
+    </div>
+
+    <!-- Completion rate card -->
+    <div class="stat-card completion-card">
+      <div class="completion-label">Completion Rate</div>
+      <div class="completion-value">{{ getCompletionRate() }}%</div>
+      <div class="completion-bar">
+        <div class="completion-fill" [style.width.%]="getCompletionRate()"></div>
+      </div>
+      <div class="completion-sub">{{ stats().done }} of {{ stats().total }} tasks done</div>
+    </div>
+  </div>
+
+  <!-- Kanban Columns -->
+  <div class="section-header">
+    <h2>Task Board</h2>
+    <a routerLink="/tasks" class="view-all">View all tasks →</a>
+  </div>
+
+  <div class="kanban-grid">
+    <!-- TODO -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <div class="col-title">
+          <span class="col-dot dot-todo"></span>
+          To Do
+        </div>
+        <span class="col-count">{{ tasksByStatus().todo.length }}</span>
+      </div>
+      <div class="task-list">
+        @for (task of tasksByStatus().todo.slice(0, 3); track task.id) {
+          <app-task-card [task]="task" (viewDetail)="openTask($event)" (deleteTask)="onDelete($event)"/>
+        }
+        @if (tasksByStatus().todo.length > 3) {
+          <a routerLink="/tasks" [queryParams]="{ status: 'todo' }" class="see-more">
+            +{{ tasksByStatus().todo.length - 3 }} more
+          </a>
+        }
+        @if (!tasksByStatus().todo.length) {
+          <div class="empty-col">No tasks yet</div>
+        }
+      </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <div class="col-title">
+          <span class="col-dot dot-progress"></span>
+          In Progress
+        </div>
+        <span class="col-count">{{ tasksByStatus()['in-progress'].length }}</span>
+      </div>
+      <div class="task-list">
+        @for (task of tasksByStatus()['in-progress'].slice(0, 3); track task.id) {
+          <app-task-card [task]="task" (viewDetail)="openTask($event)" (deleteTask)="onDelete($event)"/>
+        }
+        @if (tasksByStatus()['in-progress'].length > 3) {
+          <a routerLink="/tasks" [queryParams]="{ status: 'in-progress' }" class="see-more">
+            +{{ tasksByStatus()['in-progress'].length - 3 }} more
+          </a>
+        }
+        @if (!tasksByStatus()['in-progress'].length) {
+          <div class="empty-col">No tasks in progress</div>
+        }
+      </div>
+    </div>
+
+    <!-- REVIEW -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <div class="col-title">
+          <span class="col-dot dot-review"></span>
+          In Review
+        </div>
+        <span class="col-count">{{ tasksByStatus().review.length }}</span>
+      </div>
+      <div class="task-list">
+        @for (task of tasksByStatus().review.slice(0, 3); track task.id) {
+          <app-task-card [task]="task" (viewDetail)="openTask($event)" (deleteTask)="onDelete($event)"/>
+        }
+        @if (tasksByStatus().review.length > 3) {
+          <a routerLink="/tasks" [queryParams]="{ status: 'review' }" class="see-more">
+            +{{ tasksByStatus().review.length - 3 }} more
+          </a>
+        }
+        @if (!tasksByStatus().review.length) {
+          <div class="empty-col">No tasks in review</div>
+        }
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div class="kanban-col">
+      <div class="col-header">
+        <div class="col-title">
+          <span class="col-dot dot-done"></span>
+          Done
+        </div>
+        <span class="col-count">{{ tasksByStatus().done.length }}</span>
+      </div>
+      <div class="task-list">
+        @for (task of tasksByStatus().done.slice(0, 3); track task.id) {
+          <app-task-card [task]="task" (viewDetail)="openTask($event)" (deleteTask)="onDelete($event)"/>
+        }
+        @if (tasksByStatus().done.length > 3) {
+          <a routerLink="/tasks" [queryParams]="{ status: 'done' }" class="see-more">
+            +{{ tasksByStatus().done.length - 3 }} more
+          </a>
+        }
+        @if (!tasksByStatus().done.length) {
+          <div class="empty-col">No completed tasks</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+@if (selectedTask()) {
+  <app-task-modal
+    [task]="selectedTask()"
+    mode="view"
+    (close)="closeModal()"
+    (save)="onSave($event)"
+    (statusChange)="onStatusChange($event)"
+  />
+}
+
+@if (showCreateModal()) {
+  <app-task-modal
+    mode="create"
+    (close)="closeModal()"
+    (save)="onSave($event)"
+  />
+}

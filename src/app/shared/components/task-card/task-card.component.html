@@ -1,0 +1,62 @@
+<div class="task-card" [class]="statusClass" (click)="onView()">
+  <!-- Top row -->
+  <div class="card-top">
+    <div class="priority-badge" [class]="priorityClass">
+      {{ task().priority | priorityLabel }}
+    </div>
+    <div class="card-actions">
+      <button class="action-btn delete" (click)="onDelete($event)" title="Delete task">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Title & Description -->
+  <h3 class="card-title">{{ task().title }}</h3>
+  <p class="card-desc">{{ task().description }}</p>
+
+  <!-- Progress -->
+  @if (task().status !== 'todo' && task().status !== 'done') {
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="task().progress"></div>
+      </div>
+      <span class="progress-label">{{ task().progress }}%</span>
+    </div>
+  }
+  @if (task().status === 'done') {
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill done" [style.width.%]="100"></div>
+      </div>
+      <span class="progress-label done-label">✓ Done</span>
+    </div>
+  }
+
+  <!-- Tags -->
+  @if (task().tags.length) {
+    <div class="tags">
+      @for (tag of task().tags; track tag) {
+        <span class="tag">#{{ tag }}</span>
+      }
+    </div>
+  }
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <div class="assignee">
+      <div class="avatar-sm" [style.background]="getAvatarColor(task().assignee)">
+        {{ getInitials(task().assignee) }}
+      </div>
+      <span class="assignee-name">{{ task().assignee }}</span>
+    </div>
+    <div class="due-date" [class.overdue]="isOverdue(task().dueDate)" [class.today]="daysUntil(task().dueDate) === 0">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="12">
+        <path fill-rule="evenodd" d="M4 1a1 1 0 012 0v1h4V1a1 1 0 112 0v1a2 2 0 012 2v9a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2V1zm0 5a1 1 0 000 2h8a1 1 0 100-2H4z" clip-rule="evenodd"/>
+      </svg>
+      {{ dueDateLabel }}
+    </div>
+  </div>
+</div>

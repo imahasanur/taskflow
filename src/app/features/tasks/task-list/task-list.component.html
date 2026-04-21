@@ -1,0 +1,130 @@
+<div class="task-list-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">All Tasks</h1>
+      <p class="page-subtitle">
+        Showing {{ filteredTasks().length }} task{{ filteredTasks().length !== 1 ? 's' : '' }}
+        @if (hasActiveFilters()) { <span class="filtered-note">(filtered)</span> }
+      </p>
+    </div>
+    <div class="header-actions">
+      <!-- View toggle -->
+      <div class="view-toggle">
+        <button [class.active]="viewMode() === 'grid'" (click)="viewMode.set('grid')" title="Grid view">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+        </button>
+        <button [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')" title="List view">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+      <button class="btn-create" (click)="showCreateModal.set(true)">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+        </svg>
+        New Task
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters bar -->
+  <div class="filters-bar">
+    <!-- Search -->
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" width="16">
+        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search tasks..."
+        [value]="filter().search || ''"
+        (input)="onSearch($any($event.target).value)"
+      />
+      @if (filter().search) {
+        <button class="clear-search" (click)="onSearch('')">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      }
+    </div>
+
+    <!-- Status filter -->
+    <select class="filter-select" [value]="filter().status || 'all'" (change)="onStatusFilter($any($event.target).value)">
+      @for (s of statuses; track s.value) {
+        <option [value]="s.value">{{ s.label }}</option>
+      }
+    </select>
+
+    <!-- Priority filter -->
+    <select class="filter-select" [value]="filter().priority || 'all'" (change)="onPriorityFilter($any($event.target).value)">
+      @for (p of priorities; track p.value) {
+        <option [value]="p.value">{{ p.label }}</option>
+      }
+    </select>
+
+    @if (hasActiveFilters()) {
+      <button class="clear-btn" (click)="clearFilters()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        Clear Filters
+      </button>
+    }
+  </div>
+
+  <!-- Task Grid -->
+  @if (filteredTasks().length > 0) {
+    <div [class]="viewMode() === 'grid' ? 'tasks-grid' : 'tasks-list'">
+      @for (task of filteredTasks(); track task.id) {
+        <app-task-card
+          [task]="task"
+          (viewDetail)="openTask($event)"
+          (deleteTask)="onDelete($event)"
+        />
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="31" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+          <path d="M20 32h24M32 20v24" stroke="rgba(255,255,255,0.12)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>No tasks found</h3>
+      <p>
+        @if (hasActiveFilters()) {
+          No tasks match your current filters. Try clearing or adjusting them.
+        } @else {
+          You haven't created any tasks yet. Click "New Task" to get started.
+        }
+      </p>
+      @if (hasActiveFilters()) {
+        <button class="btn-ghost" (click)="clearFilters()">Clear Filters</button>
+      } @else {
+        <button class="btn-ghost" (click)="showCreateModal.set(true)">Create First Task</button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modals -->
+@if (selectedTask()) {
+  <app-task-modal
+    [task]="selectedTask()"
+    mode="view"
+    (close)="closeModal()"
+    (save)="onSave($event)"
+    (statusChange)="onStatusChange($event)"
+  />
+}
+
+@if (showCreateModal()) {
+  <app-task-modal
+    mode="create"
+    (close)="closeModal()"
+    (save)="onSave($event)"
+  />
+}

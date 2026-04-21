@@ -1,0 +1,146 @@
+<aside class="sidebar" [class.collapsed]="collapsed()">
+  <!-- Logo -->
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#sg)"/>
+          <path d="M8 16l5 5 11-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="sg" x1="0" y1="0" x2="32" y2="32">
+              <stop stop-color="#6366f1"/>
+              <stop offset="1" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      @if (!collapsed()) {
+        <span class="brand-name">TaskFlow</span>
+      }
+    </div>
+    <button class="collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Expand' : 'Collapse'">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Stats summary -->
+  @if (!collapsed()) {
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-num">{{ stats().total }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num accent">{{ stats().inProgress }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num warn">{{ stats().critical }}</span>
+        <span class="stat-label">Critical</span>
+      </div>
+    </div>
+  }
+
+  <!-- Nav -->
+  <nav class="sidebar-nav">
+    <p class="nav-section-label" *ngIf="!collapsed()">Navigation</p>
+
+    <a class="nav-item"
+       routerLink="/dashboard"
+       routerLinkActive="active"
+       (click)="onNavClick()"
+       [title]="collapsed() ? 'Dashboard' : ''">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zm10 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+      </svg>
+      @if (!collapsed()) { <span>Dashboard</span> }
+    </a>
+
+    <a class="nav-item"
+       routerLink="/tasks"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{ exact: true }"
+       (click)="onNavClick()"
+       [title]="collapsed() ? 'All Tasks' : ''">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+      </svg>
+      @if (!collapsed()) {
+        <span>All Tasks</span>
+        <span class="nav-badge">{{ stats().total }}</span>
+      }
+    </a>
+
+    <a class="nav-item"
+       routerLink="/tasks"
+       [queryParams]="{ status: 'in-progress' }"
+       (click)="onNavClick()"
+       [title]="collapsed() ? 'In Progress' : ''">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+      </svg>
+      @if (!collapsed()) {
+        <span>In Progress</span>
+        <span class="nav-badge in-progress">{{ stats().inProgress }}</span>
+      }
+    </a>
+
+    <a class="nav-item"
+       routerLink="/tasks"
+       [queryParams]="{ status: 'review' }"
+       (click)="onNavClick()"
+       [title]="collapsed() ? 'In Review' : ''">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      @if (!collapsed()) {
+        <span>In Review</span>
+        <span class="nav-badge review">{{ stats().review }}</span>
+      }
+    </a>
+
+    <a class="nav-item"
+       routerLink="/tasks"
+       [queryParams]="{ status: 'done' }"
+       (click)="onNavClick()"
+       [title]="collapsed() ? 'Completed' : ''">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+      </svg>
+      @if (!collapsed()) {
+        <span>Completed</span>
+        <span class="nav-badge done">{{ stats().done }}</span>
+      }
+    </a>
+  </nav>
+
+  <!-- User -->
+  <div class="sidebar-footer">
+    <div class="user-card" [title]="collapsed() ? (user()?.name || '') : ''">
+      <div class="avatar" [style.background]="getAvatarColor(user()?.name || 'U')">
+        {{ getInitials(user()?.name || 'U') }}
+      </div>
+      @if (!collapsed()) {
+        <div class="user-info">
+          <span class="user-name">{{ user()?.name }}</span>
+          <span class="user-role">{{ user()?.role }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Logout">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      }
+    </div>
+    @if (collapsed()) {
+      <button class="logout-btn-collapsed" (click)="logout()" title="Logout">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16">
+          <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    }
+  </div>
+</aside>
