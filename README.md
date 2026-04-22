@@ -2,19 +2,6 @@
 
 A Task management dashboard built with **Angular 19**, showcasing modern Angular patterns and best practices.
 
-## ✨ Features
-
-- **Angular 19 Signals** — Reactive state with `signal()`, `computed()`, `effect()`
-- **NgRx SignalStore** — Scalable, type-safe state management
-- **Standalone Components** — 100% standalone architecture (no NgModules)
-- **Lazy-loaded Routes** — Feature-based code splitting for optimal performance
-- **Control Flow Syntax** — New `@if`, `@for`, `@switch` template syntax
-- **Auth Guard** — Route protection with functional guards
-- **Custom Pipes** — `priorityLabel`, `statusLabel`, `relativeDate`
-- **Custom Directives** — `HighlightDirective` for search term highlighting
-- **Reactive Forms** — Full form validation with `ReactiveFormsModule`
-- **Responsive Design** — Mobile-first with collapsible sidebar
-- **Dark Theme** — Sleek dark UI with CSS variables
 
 ## 📁 Project Structure
 
@@ -66,12 +53,3 @@ ng test
 
 Open `http://localhost:4200`. Use the pre-filled demo credentials on the login page.
 
-## 📸 Screenshots
-
-| Login | Dashboard | Tasks |
-|---|---|---|
-| Auth flow with validation | Kanban board + stats | Filtered task list |
-
-## 📄 License
-
-MIT
