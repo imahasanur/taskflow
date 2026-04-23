@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Task, TaskStatus, TaskPriority } from '../../models/task.model';
+import { Task, TaskPriority, TaskStatus } from '../../models/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -50,7 +50,7 @@ export class TaskService {
   private generateMockTasks(): Task[] {
     const statuses: TaskStatus[] = ['todo', 'in-progress', 'review', 'done'];
     const priorities: TaskPriority[] = ['low', 'medium', 'high', 'critical'];
-    const assignees = ['Alex Kim', 'Sara Chen', 'Omar Patel', 'Lily Tran', 'John Doe'];
+    const assignees = ['Asfaq Ahamed', 'Sara Karim', 'Omar Khan', 'Lily Chowdhury', 'Karim bred'];
     const tagPool = ['frontend', 'backend', 'api', 'ui', 'auth', 'performance', 'testing', 'design'];
 
     const mockData = [
